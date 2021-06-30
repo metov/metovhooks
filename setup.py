@@ -1,6 +1,6 @@
 from pathlib import Path
 
-from setuptools import setup
+from setuptools import setup, find_packages
 
 setup(
     name="metovhooks",
@@ -15,6 +15,7 @@ setup(
         "Programming Language :: Python :: 3",
         "Development Status :: 3 - Alpha",
     ],
+    packages=find_packages(),
     install_requires=["coloredlogs", "docopt", "packaging", "pre_commit_hooks", "toml"],
     entry_points={
         "console_scripts": [
