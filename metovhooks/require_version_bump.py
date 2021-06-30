@@ -12,7 +12,7 @@ Currently, only the following methods of specifying a version are supported:
 * pyproject.toml file managed by https://github.com/python-poetry/poetry
 
 Usage:
-    require_version_bump.py REFERENCE_BRANCH VERSION_FILE
+    require_version_bump REFERENCE_BRANCH VERSION_FILE
 """
 import logging
 from pathlib import Path
