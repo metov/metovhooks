@@ -12,9 +12,9 @@ Currently, only the following methods of specifying a version are supported:
 * pyproject.toml file managed by https://github.com/python-poetry/poetry
 
 Usage:
-    require_version_bump.py REFERENCE_BRANCH VERSION_FILE
+    require_version_bump REFERENCE_BRANCH VERSION_FILE
 """
-import logging
+import re
 from pathlib import Path
 from typing import Callable
 
@@ -22,6 +22,7 @@ import toml
 from docopt import docopt
 from packaging.version import Version
 from pre_commit_hooks.util import cmd_output
+
 from metovhooks import log
 
 
@@ -32,7 +33,8 @@ def main() -> int:
 
     parse = get_parser(pv)
     curver = parse(pv.read_text())
-    basever = parse(get_reference_file(pv, basebranch))
+    f = get_reference_file(pv, basebranch)
+    basever = parse(f)
 
     if curver > basever:
         log.info(f"The current version {curver} > {basebranch} version {basever}.")
@@ -49,7 +51,7 @@ def get_parser(path) -> Callable[[str], Version]:
     """Determine the appropriate parse method for given file."""
     if path.name == "setup.py":
         # noinspection PyTypeChecker
-        return lambda _: Parsers.setup_py(str(path))
+        return Parsers.setup_py
     elif path.name == "pyproject.toml":
         return Parsers.pyproject_toml
 
@@ -58,9 +60,10 @@ def get_parser(path) -> Callable[[str], Version]:
 
 class Parsers:
     @staticmethod
-    def setup_py(path: str):
-        # https://stackoverflow.com/a/39579627/15629542
-        return cmd_output("python", path, "--version")
+    def setup_py(contents):
+        r = r"version\s*=\s*['\"]([^'\"]+)['\"]"
+        m = re.search(r, contents)
+        return m[1]
 
     @staticmethod
     def pyproject_toml(contents):
