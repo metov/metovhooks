@@ -14,6 +14,7 @@ setup(
     classifiers=[
         "Programming Language :: Python :: 3",
         "Development Status :: 3 - Alpha",
+        "License :: OSI Approved :: MIT License",
     ],
     packages=find_packages(),
     install_requires=[
