@@ -4,7 +4,7 @@ from setuptools import setup, find_packages
 
 setup(
     name="metovhooks",
-    version="0.1.3",
+    version="0.1.4",
     description="My personal git hooks.",
     url="https://github.com/metov/metovhooks",
     long_description=Path("README.md").read_text(),
@@ -16,7 +16,14 @@ setup(
         "Development Status :: 3 - Alpha",
     ],
     packages=find_packages(),
-    install_requires=["coloredlogs", "docopt", "packaging", "pre_commit_hooks", "toml"],
+    install_requires=[
+        "coloredlogs",
+        "docopt",
+        "GitPython",
+        "packaging",
+        "pre_commit_hooks",
+        "toml",
+    ],
     entry_points={
         "console_scripts": [
             "require_version_bump = metovhooks.require_version_bump:main",
