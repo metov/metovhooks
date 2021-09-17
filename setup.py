@@ -20,6 +20,7 @@ setup(
     entry_points={
         "console_scripts": [
             "require_version_bump = metovhooks.require_version_bump:main",
+            "protect_branch = metovhooks.protect_branch:main",
         ]
     },
 )
