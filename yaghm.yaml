@@ -1,3 +1,5 @@
+# This is a config for yaghm, a git hooks manager: https://github.com/metov/yaghm
+
 pre-commit:
   - black --check .
   - protect_branch master
