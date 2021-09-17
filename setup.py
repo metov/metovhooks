@@ -4,7 +4,7 @@ from setuptools import setup, find_packages
 
 setup(
     name="metovhooks",
-    version="0.1.4",
+    version="0.1.5",
     description="My personal git hooks.",
     url="https://github.com/metov/metovhooks",
     long_description=Path("README.md").read_text(),
@@ -14,6 +14,7 @@ setup(
     classifiers=[
         "Programming Language :: Python :: 3",
         "Development Status :: 3 - Alpha",
+        "License :: OSI Approved :: MIT License",
     ],
     packages=find_packages(),
     install_requires=[
