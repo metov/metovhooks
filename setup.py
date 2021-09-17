@@ -16,8 +16,14 @@ setup(
         "Development Status :: 3 - Alpha",
     ],
     packages=find_packages(),
-    install_requires=["coloredlogs", "docopt", "GitPython", "packaging",
-                      "pre_commit_hooks", "toml"],
+    install_requires=[
+        "coloredlogs",
+        "docopt",
+        "GitPython",
+        "packaging",
+        "pre_commit_hooks",
+        "toml",
+    ],
     entry_points={
         "console_scripts": [
             "require_version_bump = metovhooks.require_version_bump:main",
