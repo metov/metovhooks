@@ -1,0 +1,4 @@
+pre-commit:
+  - black --check .
+  - protect_branch master
+  - require_version_bump master setup.py
