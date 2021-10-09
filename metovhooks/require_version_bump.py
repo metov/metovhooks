@@ -21,6 +21,7 @@ from pathlib import Path
 
 import toml
 from docopt import docopt
+from packaging.version import Version
 from pre_commit_hooks.util import cmd_output
 
 from metovhooks import log
@@ -39,9 +40,8 @@ def check_version(version_file, base_branch):
     cur_raw = parse_version_file(cur_file, version_file.name)
     ref_raw = parse_version_file(ref_file, version_file.name)
 
-    # TODO: Actually parse the version here
-    cur_ver = cur_raw
-    ref_ver = ref_raw
+    cur_ver = Version(cur_raw)
+    ref_ver = Version(ref_raw)
 
     if cur_ver > ref_ver:
         log.info(f"The current version {cur_ver} > {base_branch} version {ref_ver}.")
