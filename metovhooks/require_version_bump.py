@@ -80,6 +80,8 @@ class VersionParsingError(Exception):
 def parse_setup_py(contents):
     r = r"version\s*=\s*['\"]([^'\"]+)['\"]"
     m = re.search(r, contents)
+    if not m:
+        raise VersionParsingError
     return m[1]
 
 
