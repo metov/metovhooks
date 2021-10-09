@@ -3,6 +3,7 @@ Compares the current version to the one in a baseline branch. The exit code
 will be:
 * 0 if current version is higher
 * 1 if current version is not higher
+* 2 if the version could not be parsed from given files
 
 This is intended for a workflow where you have some long living "baseline"
 branch (eg. dev) and develop features in feature branches, with the convention
@@ -60,12 +61,20 @@ def read_version_files(version_file: Path, reference_branch: str):
 
 
 def parse_version_file(contents: str, version_file_name: str) -> str:
-    if version_file_name == "setup.py":
-        return parse_setup_py(contents)
-    elif version_file_name == "pyproject.toml":
-        return parse_pyproject_toml(contents)
-    else:
-        RuntimeError(f"Don't know how to parse: {version_file_name}")
+    try:
+        if version_file_name == "setup.py":
+            return parse_setup_py(contents)
+        elif version_file_name == "pyproject.toml":
+            return parse_pyproject_toml(contents)
+        else:
+            RuntimeError(f"Don't know how to parse: {version_file_name}")
+    except VersionParsingError:
+        log.critical("No version found in file.")
+        exit(2)
+
+
+class VersionParsingError(Exception):
+    pass
 
 
 def parse_setup_py(contents):
