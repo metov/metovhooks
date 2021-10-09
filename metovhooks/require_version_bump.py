@@ -1,11 +1,12 @@
 """
-Compares the current version to the one in a baseline branch. If the current
-version is higher, exist with 0, otherwise exits with 1. Errors will raise Python
-exceptions.
+Compares the current version to the one in a baseline branch. The exit code
+will be:
+* 0 if current version is higher
+* 1 if current version is not higher
 
 This is intended for a workflow where you have some long living "baseline"
-branch (eg. dev) and develop features in feature branches, with the convention that
-feature branches must have a higher version than the baseline.
+branch (eg. dev) and develop features in feature branches, with the convention
+that feature branches must have a higher version than the baseline.
 
 Currently, only the following methods of specifying a version are supported:
 * setup.py
@@ -16,64 +17,67 @@ Usage:
 """
 import re
 from pathlib import Path
-from typing import Callable
 
 import toml
 from docopt import docopt
-from packaging.version import Version
 from pre_commit_hooks.util import cmd_output
 
 from metovhooks import log
 
 
-def main() -> int:
+def main():
     args = docopt(__doc__)
-    basebranch = args["REFERENCE_BRANCH"]
-    pv = Path(args["VERSION_FILE"])
+    version_file = Path(args["VERSION_FILE"])
+    ref_branch = args["REFERENCE_BRANCH"]
+    check_version(version_file, ref_branch)
 
-    parse = get_parser(pv)
-    curver = parse(pv.read_text())
-    f = get_reference_file(pv, basebranch)
-    basever = parse(f)
 
-    if curver > basever:
-        log.info(f"The current version {curver} > {basebranch} version {basever}.")
-        return 0
+def check_version(version_file, base_branch):
+    cur_file, ref_file = read_version_files(version_file, base_branch)
+
+    cur_raw = parse_version_file(cur_file, version_file.name)
+    ref_raw = parse_version_file(ref_file, version_file.name)
+
+    # TODO: Actually parse the version here
+    cur_ver = cur_raw
+    ref_ver = ref_raw
+
+    if cur_ver > ref_ver:
+        log.info(f"The current version {cur_ver} > {base_branch} version {ref_ver}.")
+        exit(0)
     else:
         log.error(
-            f"The current version is {curver} while the one on the "
-            f"{basebranch} is {basever} -- did you forget to bump it?"
+            f"The current version is {cur_ver} while the one on the "
+            f"{base_branch} is {ref_ver} -- did you forget to bump it?"
         )
-        return 1
+        exit(1)
 
 
-def get_parser(path) -> Callable[[str], Version]:
-    """Determine the appropriate parse method for given file."""
-    if path.name == "setup.py":
-        # noinspection PyTypeChecker
-        return Parsers.setup_py
-    elif path.name == "pyproject.toml":
-        return Parsers.pyproject_toml
-
-    raise RuntimeError(f"Don't know how to parse: {path}")
+def read_version_files(version_file: Path, reference_branch: str):
+    cur_file = version_file.read_text()
+    ref_file = cmd_output("git", "show", f"{reference_branch}:{version_file}")
+    return cur_file, ref_file
 
 
-class Parsers:
-    @staticmethod
-    def setup_py(contents):
-        r = r"version\s*=\s*['\"]([^'\"]+)['\"]"
-        m = re.search(r, contents)
-        return m[1]
-
-    @staticmethod
-    def pyproject_toml(contents):
-        t = toml.loads(contents)
-        return t["tool"]["poetry"]["version"]
+def parse_version_file(contents: str, version_file_name: str) -> str:
+    if version_file_name == "setup.py":
+        return parse_setup_py(contents)
+    elif version_file_name == "pyproject.toml":
+        return parse_pyproject_toml(contents)
+    else:
+        RuntimeError(f"Don't know how to parse: {version_file_name}")
 
 
-def get_reference_file(path: Path, branch: str):
-    return cmd_output("git", "show", f"{branch}:{path}")
+def parse_setup_py(contents):
+    r = r"version\s*=\s*['\"]([^'\"]+)['\"]"
+    m = re.search(r, contents)
+    return m[1]
+
+
+def parse_pyproject_toml(contents):
+    t = toml.loads(contents)
+    return t["tool"]["poetry"]["version"]
 
 
 if __name__ == "__main__":
-    exit(main())
+    main()
