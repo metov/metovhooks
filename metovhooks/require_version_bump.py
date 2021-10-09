@@ -87,7 +87,20 @@ def parse_setup_py(contents):
 
 def parse_pyproject_toml(contents):
     t = toml.loads(contents)
-    return t["tool"]["poetry"]["version"]
+
+    tool = t.get("tool")
+    if tool is None:
+        raise VersionParsingError
+
+    poetry = tool.get("poetry")
+    if poetry is None:
+        raise VersionParsingError
+
+    version = poetry.get("version")
+    if version is None:
+        raise VersionParsingError
+
+    return version
 
 
 if __name__ == "__main__":
